@@ -9,6 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 
 namespace ConsoleApp1;
 
@@ -123,6 +124,7 @@ public class MyStandardDeviationSampleTranslator : IMethodCallTranslator
 
     public static SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
     {
+        // TODO fix it
         return sqlExpression;
     }
 }
