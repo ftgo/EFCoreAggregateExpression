@@ -7,51 +7,58 @@ using System.Text.Json;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-await builder.InitializeAsync();
+builder.Initialize();
 
 var host = builder.Build();
 
-await host.InitializeAsync();
+host.Initialize();
 
-await host.RunAsync();
+//await host.RunAsync();
+host.Execute();
 
 public class FooService(FooContext context) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        Console.WriteLine(JsonSerializer.Serialize(await context.Foos.Skip(5).FirstAsync(cancellationToken: stoppingToken)));
+        => await Task.Run(Execute);
 
-        Console.WriteLine(await context.Foos
+    public void Execute()
+    {
+        Console.WriteLine(JsonSerializer.Serialize(context.Foos.Skip(5).First()));
+
+        Console.WriteLine(context.Foos
             .GroupBy(e1 => e1.IntValue)
             .Select(g => EF.Functions.StandardDeviationSample(g.Select(e2 => e2.DoubleValue)))
-            .FirstAsync());
+            .First());
 
-        Console.WriteLine(await context.Foos
+        Console.WriteLine(context.Foos
             .GroupBy(e1 => e1.IntValue)
             .Select(g => MyStandardDeviationSampleDbFunctionsExtensions.MyStandardDeviationSample(g.Select(e2 => e2.DoubleValue)))
-            .FirstAsync());
+            .First());
     }
 }
 
 public static class FooExtensions
 {
-    public static async Task InitializeAsync(this HostApplicationBuilder builder)
+    public static void Initialize(this HostApplicationBuilder builder)
     {
-        await Task.Run(() =>
-        {
             builder.Services.AddDbContext<FooContext>();
             builder.Services.AddScoped<FooInitializer>();
             builder.Services.AddHostedService<FooService>();
 
             //builder.Services.AddEntityFrameworkNpgsql();
             //builder.Services.AddEntityFrameworkNpgsqlNodaTime();
-        });
     }
 
-    public static async Task InitializeAsync(this IHost host)
+    public static void Initialize(this IHost host)
     {
         using var scope = host.Services.CreateScope();
-        await scope.ServiceProvider.GetRequiredService<FooInitializer>().InitializeAsync();
+        scope.ServiceProvider.GetRequiredService<FooInitializer>().Initialize();
+    }
+
+    public static void Execute(this IHost host)
+    {
+        using var scope = host.Services.CreateScope();
+        scope.ServiceProvider.GetService<FooService>()!.Execute();
     }
 }
 
@@ -86,10 +93,10 @@ public class FooInitializer
         _context = webappContext;
     }
 
-    public async Task InitializeAsync()
+    public void Initialize()
     {
-        await _context.Database.EnsureCreatedAsync();
-        await _context.Foos.ExecuteDeleteAsync();
+        _context.Database.EnsureCreated();
+        _context.Foos.ExecuteDelete();
 
         for (int i = 0; i < 10; i++)
             _context.Foos.Add(new Foo
@@ -98,6 +105,6 @@ public class FooInitializer
                 DoubleValue = i
             });
 
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
     }
 }
