@@ -1,6 +1,5 @@
 ﻿using ConsoleApp1;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel.DataAnnotations;
@@ -43,6 +42,9 @@ public static class FooExtensions
             builder.Services.AddDbContext<FooContext>();
             builder.Services.AddScoped<FooInitializer>();
             builder.Services.AddHostedService<FooService>();
+
+            //builder.Services.AddEntityFrameworkNpgsql();
+            //builder.Services.AddEntityFrameworkNpgsqlNodaTime();
         });
     }
 
