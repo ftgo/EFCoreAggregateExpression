@@ -71,7 +71,7 @@ public class FooContext : DbContext
         => optionsBuilder
             .LogTo(Console.WriteLine)
             .EnableSensitiveDataLogging()
-            .UseNpgsql("Host=localhost;Database=webapp;Username=backend_migration_user;Password=password",
+            .UseNpgsql("Host=localhost;Database=foodb;Username=admin;Password=password",
                 npgsqlBuilder => npgsqlBuilder
                     .UseNodaTime()
                     .AddMyStandardDeviationSampleSupportTranslator());
